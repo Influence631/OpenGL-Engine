@@ -1,0 +1,28 @@
+# Build folders
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+#object files
+*.o
+*.obj
+
+#compiled libs
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+#exe
+*.exe
+*.out
+*.app
+
+# vim files)
+*.swp
+*.swo
+*.log
+

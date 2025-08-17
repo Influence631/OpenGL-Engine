@@ -2,9 +2,9 @@ WIP.
 This is a game engine that I`m building with C++ and OpenGL.
 
 To run on linux or WSL:
-1)cd into build folder \n
-2)cmake .. \n
-3)make && ./engine \n
+1)cd into build folder
+2)cmake .. 
+3)make && ./engine 
 
 If you are running in Visual Studio make sure to configure the build folder correctly (I believe its root by default).
 

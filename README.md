@@ -13,3 +13,6 @@ By default, Visual Studio may try to run from the project root, which will cause
 
 I have just finished the basics of OpenGL and am currently learning how to do lighting:
 <img width="1001" height="805" alt="Screenshot from 2025-08-06 21-23-12" src="https://github.com/user-attachments/assets/19cde3bb-4c7b-4be8-9c18-2ba575f9231f" />
+
+Diffuse + Ambient lighting Implemented:
+<img width="1410" height="922" alt="image" src="https://github.com/user-attachments/assets/66086f14-1a21-462e-b652-d452d5a3177c" />

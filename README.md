@@ -11,7 +11,8 @@ If you are using Visual Studio with the CMake integration, make sure to set the 
 By default, Visual Studio may try to run from the project root, which will cause issues finding compiled binaries.  
 
 
-I have just finished the basics of OpenGL and am currently learning how to do lighting:
+Some screenshots
+Absolute Basics:
 <img width="1001" height="805" alt="Screenshot from 2025-08-06 21-23-12" src="https://github.com/user-attachments/assets/19cde3bb-4c7b-4be8-9c18-2ba575f9231f" />
 
 Diffuse + Ambient lighting Implemented:

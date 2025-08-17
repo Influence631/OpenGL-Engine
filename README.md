@@ -1,5 +1,5 @@
 WIP. 
-This is a game engine buing built with C++ and OpenGL.
+This is a very basic game engine being built with C++ and OpenGL.
 
 To run on linux or WSL:
 1. cd into build folder  

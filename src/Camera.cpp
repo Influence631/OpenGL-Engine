@@ -28,15 +28,20 @@ glm::mat4 Camera::getViewMatrix(){
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime){
 	//std::cout << "The input received is " << direction << " Delta time is " << deltaTime << "\n";
 	//std::cout << "Front is " << Front << "\n";
+	float velocity = Speed * deltaTime;
 	if(direction == FORWARD)
-		Position += Front * Speed * deltaTime;
+		Position += Front * velocity;
 	if(direction == BACKWARD)
-		Position -= Front * Speed * deltaTime;
+		Position -= Front * velocity;
 	if(direction == LEFT)
-		Position -= Right * Speed * deltaTime;
+		Position -= Right * velocity;
 	if(direction == RIGHT)
-		Position += Right * Speed * deltaTime;
-	
+		Position += Right * velocity;
+	if(direction == UP)
+		Position += WorldUp * velocity;
+ 	if(direction == DOWN)
+		Position -= WorldUp * velocity;
+
 	//std::cout << "Position from camera class " << Position << "\n";
 
 }

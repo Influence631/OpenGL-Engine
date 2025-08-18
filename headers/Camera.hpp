@@ -7,13 +7,15 @@ enum Camera_Movement{
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 };
 
 //default variables
 inline constexpr float PITCH = 0.0f;
 inline constexpr float YAW = -90.0f;
-inline constexpr float SPEED = 3.0f;
+inline constexpr float SPEED = 4.0f;
 inline constexpr float SENSITIVITY = 0.05f;
 inline constexpr float FOV = 45.0f;
 

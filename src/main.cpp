@@ -203,9 +203,14 @@ int main(int argc, char** argv){
 	shader.setInt("brick", 0);
 	shader.setInt("face", 1);
 	
-	shader.setVec3("objectColor", glm::vec3(0.4f, 0.9f, 0.6f));
-	shader.setVec3("lightColor", glm::vec3(0.0f, 0.5f, 1.0f));
+	shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	shader.setVec3("lightPos", lightPos);
+	//set the material
+	shader.setVec3("material.ambient", glm::vec3(0.0215f, 0.1745f, 0.0215f));
+	shader.setVec3("material.diffuse", glm::vec3(0.07568f, 0.61424f, 0.07568f));
+	shader.setVec3("material.specular", glm::vec3(0.633f, 0.727811f, 0.633f));
+	shader.setFloat("material.shininess", 32);
+	
 	//create shaders for lighting
 	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 
@@ -216,7 +221,7 @@ int main(int argc, char** argv){
 	while(!glfwWindowShouldClose(window)){
 		processInput(window);
 		
-		glClearColor(0.2f, 0.3f, 0.1f, 1.0f);
+		glClearColor(0.10f, 0.60f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//bind texture to the correct texture units so that the vshader sampler the correct textures
@@ -245,7 +250,7 @@ int main(int argc, char** argv){
 		glm::mat4 model;
 		for(int i=0; i < 4; i++){
 			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
+			model = glm::translate(model, glm::vec3(i));
 			model = glm::rotate(model, currentTime * i, glm::vec3(0.3f, 0.5f, 0.4f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -296,7 +301,10 @@ void processInput(GLFWwindow* window){
   	camera.ProcessKeyboard(LEFT, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
   	camera.ProcessKeyboard(RIGHT, deltaTime);
-	//if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera.ProcessKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		camera.ProcessKeyboard(DOWN, deltaTime);
 	//std::cout << "THE position is: X  " << camera.Position  << "\n"; 
 }
 

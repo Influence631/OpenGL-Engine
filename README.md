@@ -1,10 +1,12 @@
 WIP. 
 This is a very basic game engine being built with C++ and OpenGL.
 
+
 To run on linux or WSL:
-1. cd into build folder  
-2. cmake ..  
-3. make && ./engine   
+1.Install glfw3, OpenGL and glm system wide (will clarify on this later)
+2. cd into build folder  
+3. cmake ..  
+4. make && ./engine   
 
 ### Visual Studio
 If you are using Visual Studio with the CMake integration, make sure to set the working directory to the `build/` folder (not the project root).  

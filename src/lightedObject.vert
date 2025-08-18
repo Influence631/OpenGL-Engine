@@ -14,6 +14,9 @@ uniform mat4 projection;
 void main(){
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
 	uv = aUV;
+
+	//convert the normals from local to world coords (and getting rid of translation part of the matrix (by casting to 3x3 mat) since normals dont have a homogenous w coord).
+	//calculating an inverse is expensive so it shouldnt really happen in the vertex shader, rather calculate the normal matrix on the cpu and set using a uniform
 	Normal = mat3(transpose(inverse(model))) * aNormal;
 	FragPos = vec3(model * vec4(aPos, 1.0f));
 }

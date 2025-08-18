@@ -15,9 +15,10 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos);
 void scroll_callback(GLFWwindow*, double xOffset, double yOffset);
 void processInput(GLFWwindow* window);
 
-const unsigned int screen_width = 1000;
-const unsigned int screen_height = 800;
+const unsigned int screen_width = 1420;
+const unsigned int screen_height = 920;
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
+const glm::vec3 lightPos = glm::vec3(0.0f, -1.0f, 3.0f);
 
 float lastX = screen_width / 2;
 float lastY = screen_height / 2;
@@ -204,8 +205,7 @@ int main(int argc, char** argv){
 	
 	shader.setVec3("objectColor", glm::vec3(0.4f, 0.9f, 0.6f));
 	shader.setVec3("lightColor", glm::vec3(0.0f, 0.5f, 1.0f));
-	shader.setVec3("lightPos", glm::vec3{0.0f, 0.0f, 6.0f});
-	
+	shader.setVec3("lightPos", lightPos);
 	//create shaders for lighting
 	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 
@@ -239,13 +239,14 @@ int main(int argc, char** argv){
 		shader.use();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
-
+		shader.setVec3("viewPos", camera.Position);
+		
 		bindVAO(vao);
 		glm::mat4 model;
 		for(int i=0; i < 4; i++){
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, currentTime, glm::vec3(0.3f, 0.5f, 0.4f));
+			model = glm::rotate(model, currentTime * i, glm::vec3(0.3f, 0.5f, 0.4f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -259,7 +260,7 @@ int main(int argc, char** argv){
 		lightSourceShader.setMat4("view", view);
 
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 6.0f));
+		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		lightSourceShader.setMat4("model", model);
 

@@ -19,3 +19,8 @@ Absolute Basics:
 
 Diffuse + Ambient lighting Implemented:
 <img width="1410" height="922" alt="image" src="https://github.com/user-attachments/assets/66086f14-1a21-462e-b652-d452d5a3177c" />
+
+Phong lighting implemented + support for diffuse and specular maps.
+Also added support for global directional illumination.
+
+<img width="1230" height="842" alt="Phong-and-Maps" src="https://github.com/user-attachments/assets/f56e9987-cbcc-4017-8995-16bb614136fe" />

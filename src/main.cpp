@@ -17,8 +17,9 @@ void processInput(GLFWwindow* window);
 
 const unsigned int screen_width = 1420;
 const unsigned int screen_height = 920;
+
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
-const glm::vec3 lightPos = glm::vec3(0.0f, -1.0f, 3.0f);
+glm::vec3 lightPos = glm::vec3(-0.2f, -1.0f, -0.3f);
 
 float lastX = screen_width / 2;
 float lastY = screen_height / 2;
@@ -150,9 +151,10 @@ int main(int argc, char** argv){
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	unsigned int brick_texture;
-	glGenTextures(1, &brick_texture);
-	glBindTexture(GL_TEXTURE_2D, brick_texture);
+	//make a function for loading textures
+	unsigned int box_diffuse_map;
+	glGenTextures(1, &box_diffuse_map);
+	glBindTexture(GL_TEXTURE_2D, box_diffuse_map);
 	//set texture wrapping params
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -164,9 +166,9 @@ int main(int argc, char** argv){
 	
 	//stbi_set_flip_vertically_on_load(true);
 	int width, height, nrChannels;
-	unsigned char *data = stbi_load("../assets/brick.jpg", &width, &height, &nrChannels, 0);
+	unsigned char *data = stbi_load("../assets/diffuse_map.png", &width, &height, &nrChannels, 0);
 	if(data){
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else{
@@ -175,7 +177,27 @@ int main(int argc, char** argv){
 	}
 	stbi_image_free(data);
 
+	unsigned int box_specular_map;
+	glGenTextures(1, &box_specular_map);
+	glBindTexture(GL_TEXTURE_2D, box_specular_map);
+	///wrapping
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	//filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	data = stbi_load("../assets/specular_map.png", &width, &height, &nrChannels, 0);
+	if(data){
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else{
+		std::cout << "FAILED TO LOAD IN SPECULAR MAP\n";
+		return EXIT_FAILURE;
+	}
+
+	//face text
 	unsigned int face_texture;
 	glGenTextures(1, &face_texture);
 	glBindTexture(GL_TEXTURE_2D, face_texture);
@@ -200,17 +222,20 @@ int main(int argc, char** argv){
 
 	Shader shader = Shader("../src/lightedObject.vert", "../src/lightedObject.frag");
 	shader.use();
-	shader.setInt("brick", 0);
-	shader.setInt("face", 1);
+
+	//set the textures & material maps
+	shader.setInt("material.diffuse", 0);
+	shader.setInt("material.specular", 1);
+	shader.setInt("face", 2);
 	
-	shader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-	shader.setVec3("lightPos", lightPos);
-	//set the material
-	shader.setVec3("material.ambient", glm::vec3(0.0215f, 0.1745f, 0.0215f));
-	shader.setVec3("material.diffuse", glm::vec3(0.07568f, 0.61424f, 0.07568f));
-	shader.setVec3("material.specular", glm::vec3(0.633f, 0.727811f, 0.633f));
+	//material
 	shader.setFloat("material.shininess", 32);
 	
+	//set the light attributes
+	shader.setVec4("light.lightVector", glm::vec4(lightPos, 1.0f));
+	shader.setVec3("light.ambient", glm::vec3(0.2f, 0.07f, 0.201f));
+	shader.setVec3("light.diffuse", glm::vec3(0.65f, 0.61f, 0.43512f));
+	shader.setVec3("light.specular", glm::vec3(1.0f));
 	//create shaders for lighting
 	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 
@@ -221,30 +246,36 @@ int main(int argc, char** argv){
 	while(!glfwWindowShouldClose(window)){
 		processInput(window);
 		
-		glClearColor(0.10f, 0.60f, 0.3f, 1.0f);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//bind texture to the correct texture units so that the vshader sampler the correct textures
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, brick_texture);
+		glBindTexture(GL_TEXTURE_2D, box_diffuse_map);
 		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, box_specular_map);
+		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, face_texture);
 		
 		//update deltatime
 		float currentTime = glfwGetTime();
 		deltaTime = currentTime - lastTime;
 		lastTime = currentTime;
-		//bind textures to corresponding texture units:
-	  glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, brick_texture);
+		
 		//rendering
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(width/height), 0.1f, 100.0f);
 
+		float radius = 0.0f;
+		glm::vec4 lightVector = glm::vec4(lightPos +  glm::vec3(cos(currentTime), sin(currentTime) * cos(currentTime) * 1.5 * radius, sin(currentTime)) * radius, 0.0f);	
+		
 		shader.use();
+		//vert
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
+		//frag
 		shader.setVec3("viewPos", camera.Position);
+		shader.setVec4("light.lightVector", lightVector);
 		
 		bindVAO(vao);
 		glm::mat4 model;
@@ -255,17 +286,15 @@ int main(int argc, char** argv){
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		//glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//
 		//draw the light source
 		//
 		lightSourceShader.use();
 		lightSourceShader.setMat4("projection", projection);
 		lightSourceShader.setMat4("view", view);
-
+	
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
+		model = glm::translate(model, glm::vec3(lightVector));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		lightSourceShader.setMat4("model", model);
 

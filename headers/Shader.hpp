@@ -15,6 +15,7 @@ class Shader{
 	void setInt(const char* name, int value);
 	void setMat4(const char* name, const glm::mat4& matrix);
 	void setVec3(const char* name, const glm::vec3& vec, int count = 1);
+	void setVec4(const char* name, const glm::vec4& vec, int count = 1);
 
 	public:
 	unsigned int ID;

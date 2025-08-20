@@ -266,8 +266,8 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(width/height), 0.1f, 100.0f);
 
-		float radius = 0.0f;
-		glm::vec4 lightVector = glm::vec4(lightPos +  glm::vec3(cos(currentTime), sin(currentTime) * cos(currentTime) * 1.5 * radius, sin(currentTime)) * radius, 0.0f);	
+		float radius = 2.0f;
+		glm::vec4 lightVector = glm::vec4(lightPos +  glm::vec3(cos(currentTime), sin(currentTime) * cos(currentTime) * 1.5 * radius, sin(currentTime)) * radius, 1.0f);	
 		
 		shader.use();
 		//vert

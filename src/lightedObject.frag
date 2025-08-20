@@ -31,8 +31,12 @@ uniform Light light;
 // can optionally make the ambient add global illumination
 void main(){
 	
+	//ambient light, depends on the diffuse lighting and comes from the same diffuse map
+	vec3 ambient = light.ambient * vec3(texture(material.diffuse, uv));
+	
 	//diffuse lighting	
 	vec3 norm = normalize(Normal);	
+	//if the w component is 0 -> the lighting is directional (global), otherwise its a position and the direction has to be calculated
 	vec3 lightDir = normalize(light.lightVector.xyz - FragPos);
 	if(light.lightVector.w == 0.0)
 		lightDir = vec3(normalize(-light.lightVector));
@@ -40,8 +44,6 @@ void main(){
   
 	vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, uv));
   
-	//ambient light, depends on the diffuse lighting and comes from the same diffuse map
-	vec3 ambient = light.ambient * vec3(texture(material.diffuse, uv));
 	
 	//specular lighting
 	vec3 viewDir = normalize(viewPos - FragPos);

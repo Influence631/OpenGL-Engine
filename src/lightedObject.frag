@@ -19,6 +19,11 @@ struct Light{
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+
+	float constant;
+	float linear;
+	float quadratic;
+
 };
 
 uniform sampler2D face;
@@ -49,10 +54,14 @@ void main(){
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);	
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, uv));		
+  vec3 specular = light.specular * spec * vec3(texture(material.specular, uv));		
 
 	vec3 result = ambient + diffuse + specular;
-	
+	if(light.lightVector.w == 2.0f){
+		float dist = length(light.lightVector.xyz - FragPos);
+		float attenuation = (1.0f) / (light.constant + light.linear * dist + light.quadratic * dist * dist);
+		result *= attenuation;
+	}
 	FragColor = vec4(result, 1.0f);
 	//fragColor = mix(texture(brick, uv), texture(face, uv), 0.4f);
 }

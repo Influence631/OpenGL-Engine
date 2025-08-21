@@ -28,6 +28,12 @@ bool firstMove = true;
 float deltaTime = 0.0f;
 float lastTime = 0.0f;
 
+namespace LightType{
+	constexpr float Directional = 0.0f;
+	constexpr float SourceBeam = 1.0f;
+	constexpr float Spot = 2.0f;
+};
+
 float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,
@@ -234,8 +240,12 @@ int main(int argc, char** argv){
 	//set the light attributes
 	shader.setVec4("light.lightVector", glm::vec4(lightPos, 1.0f));
 	shader.setVec3("light.ambient", glm::vec3(0.2f, 0.07f, 0.201f));
-	shader.setVec3("light.diffuse", glm::vec3(0.65f, 0.61f, 0.43512f));
+	shader.setVec3("light.diffuse", glm::vec3(0.5f, 0.51f, 0.53512f));
 	shader.setVec3("light.specular", glm::vec3(1.0f));
+	//spotlight params
+	shader.setFloat("light.constant", 0.05f);
+	shader.setFloat("light.linear", 0.022);
+	shader.setFloat("light.quadratic", 0.0019);
 	//create shaders for lighting
 	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 
@@ -266,8 +276,8 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(width/height), 0.1f, 100.0f);
 
-		float radius = 2.0f;
-		glm::vec4 lightVector = glm::vec4(lightPos +  glm::vec3(cos(currentTime), sin(currentTime) * cos(currentTime) * 1.5 * radius, sin(currentTime)) * radius, 1.0f);	
+		float radius = 0.0f;
+		glm::vec4 lightVector = glm::vec4(lightPos +  glm::vec3(cos(currentTime), sin(currentTime) * cos(currentTime) * 1.5 * radius, sin(currentTime)) * radius, LightType::Spot);	
 		
 		shader.use();
 		//vert
@@ -276,10 +286,10 @@ int main(int argc, char** argv){
 		//frag
 		shader.setVec3("viewPos", camera.Position);
 		shader.setVec4("light.lightVector", lightVector);
-		
+	
 		bindVAO(vao);
 		glm::mat4 model;
-		for(int i=0; i < 4; i++){
+		for(int i=0; i < 10; i++){
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(i));
 			model = glm::rotate(model, currentTime * i, glm::vec3(0.3f, 0.5f, 0.4f));

@@ -27,5 +27,7 @@ Also added support for global directional illumination.
 
 
 Spot Light:
-<img width="1308" height="680" alt="image" src="https://github.com/user-attachments/assets/abb40b07-8add-429c-b11c-762b7f6d3283" />
+
+<img width="1418" height="886" alt="image" src="https://github.com/user-attachments/assets/2c555d40-9345-45b4-addf-ce76f29f2433" />
+
 

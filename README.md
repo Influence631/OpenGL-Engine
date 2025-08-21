@@ -24,3 +24,8 @@ Phong lighting implemented + support for diffuse and specular maps.
 Also added support for global directional illumination.
 
 <img width="1230" height="842" alt="Phong-and-Maps" src="https://github.com/user-attachments/assets/f56e9987-cbcc-4017-8995-16bb614136fe" />
+
+
+Spot Light:
+<img width="1308" height="680" alt="image" src="https://github.com/user-attachments/assets/abb40b07-8add-429c-b11c-762b7f6d3283" />
+

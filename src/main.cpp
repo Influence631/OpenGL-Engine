@@ -22,7 +22,8 @@ const unsigned int screen_height = 920;
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
 bool includeDirectionalLight = true;
-bool includePointLights = true;
+bool includePointLights = false;
+bool includeFlashLight = true;
 
 float nrActivePointLights = 4;
 const glm::vec3 pointLightPositions[] ={
@@ -240,7 +241,7 @@ int main(int argc, char** argv){
 		
 		//rendering
 		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(width/height), 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(screen_width/screen_height), 0.1f, 100.0f);
 
 		float radius = 0.0f;
 		float slow = 1.0f;

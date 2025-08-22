@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 project(engine)
 
-#disable wayland (keep x11)
-#set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
-#set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
-
-
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
@@ -29,7 +24,6 @@ target_include_directories(camera PUBLIC headers)
 #stb image
 add_library(stb_image STATIC src/stb_image.cpp)
 target_include_directories(stb_image PUBLIC headers)
-
 
 #main program
 add_executable(${PROJECT_NAME} src/main.cpp)

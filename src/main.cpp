@@ -22,8 +22,8 @@ const unsigned int screen_height = 920;
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
 bool includeDirectionalLight = true;
-bool includePointLights = false;
-bool includeFlashLight = true;
+bool includePointLight = true;
+bool includeSpotLight = true;
 
 float nrActivePointLights = 4;
 const glm::vec3 pointLightPositions[] ={
@@ -185,14 +185,13 @@ int main(int argc, char** argv){
 	//direcitonal light
 	if(includeDirectionalLight){
 		shader.setVec3("directionalLight.direction", directionalLight);
-		shader.setVec3("directionalLight.ambient", glm::vec3(0.12f, 0.107f, 0.1201f));
-		shader.setVec3("directionalLight.diffuse", glm::vec3(0.35f, 0.351f, 0.453512f));
+		shader.setVec3("directionalLight.ambient", glm::vec3(0.1));
+		shader.setVec3("directionalLight.diffuse", glm::vec3(0.4));
 		shader.setVec3("directionalLight.specular", glm::vec3(0.2f));
 	}
 	
-	if(includePointLights){
+	if(includePointLight){
 		shader.setInt("nrActivePointLights", nrActivePointLights);
-		std::cout << "Active lights " << nrActivePointLights << "\n" ; 
 		for(int i = 0; i < nrActivePointLights; i++){
 			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
 
@@ -202,20 +201,24 @@ int main(int argc, char** argv){
 
 			shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
 			shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.07f);
-			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.0173275);
-			
+			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.0173275);		
 		}
 	}
-	//spotlight params
-	//shader.setFloat("light.constant", 1.0f);
-	//shader.setFloat("light.linear", 0.02245);
-	//shader.setFloat("light.quadratic", 0.001975);
-	//set the spot(flashlight) params;
-	//shader.setVec3();
 	
-	//create shaders for lighting
-	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
+	if(includeSpotLight){
+		shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
+		shader.setVec3("spotLight.diffuse", glm::vec3(0.6f));
+		shader.setVec3("spotLight.specular", glm::vec3(1.0f));
+		
+		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(14.5f)));
+		
+		shader.setFloat("spotLight.constant", 1.0f);
+		shader.setFloat("spotLight.linear", 0.09f);
+		shader.setFloat("spotLight.quadratic", 0.032f);
+	}
 
+	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 	lightSourceShader.use();
 	lightSourceShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 	
@@ -243,9 +246,9 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(screen_width/screen_height), 0.1f, 100.0f);
 
-		float radius = 0.0f;
-		float slow = 1.0f;
-		//glm::vec3 lightVector = lightPos + glm::vec3(cos(currentTime/slow),sin(currentTime/slow)*cos(currentTime/slow),sin(currentTime/slow)) * radius;	
+		float radius = 1.0f;
+		float slow = 10.0f;
+		glm::vec3 lightPosOffset = glm::vec3(cos(currentTime/slow),sin(currentTime/slow)*cos(currentTime/slow),sin(currentTime/slow)) * radius;	
 		
 		shader.use();
 		//vert
@@ -254,12 +257,26 @@ int main(int argc, char** argv){
 		//frag
 		shader.setVec3("viewPos", camera.Position);
 		
+		shader.setInt("useSpot", static_cast<int>(includeSpotLight));
+		shader.setInt("usePoint", static_cast<int>(includePointLight));
+		shader.setInt("useDirectional", static_cast<int>(includeDirectionalLight));
+		
+		if(includeSpotLight){
+			shader.setVec3("spotLight.position", camera.Position);
+			shader.setVec3("spotLight.direction", camera.Front);
+		}
+		
+		if(includePointLight){
+			for(int i = 0; i < nrActivePointLights; i++){
+				shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i] + lightPosOffset);
+			}
+		}
 		glm::mat4 model;
 		bindVAO(vao);
 		for(int i=0; i < 10; i++){
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(i));
-			model = glm::rotate(model, currentTime * i, glm::vec3(0.3f, 0.5f, 0.4f));
+			model = glm::rotate(model, currentTime * i / slow, glm::vec3(0.3f, 0.5f, 0.4f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -270,16 +287,17 @@ int main(int argc, char** argv){
 		lightSourceShader.setMat4("projection", projection);
 		lightSourceShader.setMat4("view", view);
 		
-		bindVAO(lightCubeVAO);
-		for(int i = 0; i < 4; i++){
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-			lightSourceShader.setMat4("model", model);
+		if(includePointLight){
+			bindVAO(lightCubeVAO);
+			for(int i = 0; i < 4; i++){
+				model = glm::mat4(1.0f);
+				model = glm::translate(model, pointLightPositions[i] + lightPosOffset);
+				model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+				lightSourceShader.setMat4("model", model);
 			
-			glDrawArrays(GL_TRIANGLES, 0, 36);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
 		}
-
 		
 		
 		glfwSwapBuffers(window);
@@ -302,6 +320,16 @@ void processInput(GLFWwindow* window){
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, true);
 	}
+	if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+		includeSpotLight = !includeSpotLight;
+	}
+	if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
+		includePointLight = !includePointLight;
+	}
+	if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
+		includeDirectionalLight = !includeDirectionalLight;
+	}
+	//camera movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
   	camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

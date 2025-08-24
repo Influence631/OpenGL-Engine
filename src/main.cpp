@@ -14,7 +14,11 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);
 void scroll_callback(GLFWwindow*, double xOffset, double yOffset);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, Shader& shader);
+
+void manage_spot_light(Shader& shader);
+void manage_directional_light(Shader& shader);
+void manage_point_lights(Shader& shader);
 
 const unsigned int screen_width = 1420;
 const unsigned int screen_height = 920;
@@ -22,9 +26,10 @@ const unsigned int screen_height = 920;
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
 bool includeDirectionalLight = true;
-bool includePointLight = true;
+bool includePointLight = false;
 bool includeSpotLight = true;
 
+const glm::vec3 vec0 = glm::vec3(0.0f);
 float nrActivePointLights = 4;
 const glm::vec3 pointLightPositions[] ={
 	glm::vec3(3.2f, 7.0f, 4.3f),
@@ -181,42 +186,9 @@ int main(int argc, char** argv){
 	//material
 	shader.setFloat("material.shininess", 32);
 	
-	//set the light attributes
-	//direcitonal light
-	if(includeDirectionalLight){
-		shader.setVec3("directionalLight.direction", directionalLight);
-		shader.setVec3("directionalLight.ambient", glm::vec3(0.1));
-		shader.setVec3("directionalLight.diffuse", glm::vec3(0.4));
-		shader.setVec3("directionalLight.specular", glm::vec3(0.2f));
-	}
-	
-	if(includePointLight){
-		shader.setInt("nrActivePointLights", nrActivePointLights);
-		for(int i = 0; i < nrActivePointLights; i++){
-			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
-
-			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.1f));
-			shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f));
-			shader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(0.7));
-
-			shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-			shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.07f);
-			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.0173275);		
-		}
-	}
-	
-	if(includeSpotLight){
-		shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
-		shader.setVec3("spotLight.diffuse", glm::vec3(0.6f));
-		shader.setVec3("spotLight.specular", glm::vec3(1.0f));
-		
-		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(14.5f)));
-		
-		shader.setFloat("spotLight.constant", 1.0f);
-		shader.setFloat("spotLight.linear", 0.09f);
-		shader.setFloat("spotLight.quadratic", 0.032f);
-	}
+	manage_spot_light(shader);
+	manage_directional_light(shader);
+	manage_point_lights(shader);
 
 	Shader lightSourceShader = Shader("../src/lightSource.vert", "../src/lightSource.frag");
 	lightSourceShader.use();
@@ -224,7 +196,7 @@ int main(int argc, char** argv){
 	
 	glEnable(GL_DEPTH_TEST);
 	while(!glfwWindowShouldClose(window)){
-		processInput(window);
+		processInput(window, shader);
 		
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -246,9 +218,9 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(screen_width/screen_height), 0.1f, 100.0f);
 
-		float radius = 1.0f;
+		//float radius = 0.0f;
 		float slow = 10.0f;
-		glm::vec3 lightPosOffset = glm::vec3(cos(currentTime/slow),sin(currentTime/slow)*cos(currentTime/slow),sin(currentTime/slow)) * radius;	
+		//glm::vec3 lightPosOffset = glm::vec3(cos(currentTime/slow),sin(currentTime/slow)*cos(currentTime/slow),sin(currentTime/slow)) * radius;	
 		
 		shader.use();
 		//vert
@@ -257,20 +229,11 @@ int main(int argc, char** argv){
 		//frag
 		shader.setVec3("viewPos", camera.Position);
 		
-		shader.setInt("useSpot", static_cast<int>(includeSpotLight));
-		shader.setInt("usePoint", static_cast<int>(includePointLight));
-		shader.setInt("useDirectional", static_cast<int>(includeDirectionalLight));
-		
 		if(includeSpotLight){
 			shader.setVec3("spotLight.position", camera.Position);
 			shader.setVec3("spotLight.direction", camera.Front);
 		}
-		
-		if(includePointLight){
-			for(int i = 0; i < nrActivePointLights; i++){
-				shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i] + lightPosOffset);
-			}
-		}
+	
 		glm::mat4 model;
 		bindVAO(vao);
 		for(int i=0; i < 10; i++){
@@ -291,7 +254,7 @@ int main(int argc, char** argv){
 			bindVAO(lightCubeVAO);
 			for(int i = 0; i < 4; i++){
 				model = glm::mat4(1.0f);
-				model = glm::translate(model, pointLightPositions[i] + lightPosOffset);
+				model = glm::translate(model, pointLightPositions[i]);
 				model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 				lightSourceShader.setMat4("model", model);
 			
@@ -316,18 +279,22 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window){
+void processInput(GLFWwindow* window, Shader& shader){
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, true);
 	}
 	if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
 		includeSpotLight = !includeSpotLight;
+		manage_spot_light(shader);
 	}
 	if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
 		includePointLight = !includePointLight;
+		manage_point_lights(shader);
+
 	}
 	if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
 		includeDirectionalLight = !includeDirectionalLight;
+		manage_directional_light(shader);
 	}
 	//camera movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -345,7 +312,67 @@ void processInput(GLFWwindow* window){
 	//std::cout << "THE position is: X  " << camera.Position  << "\n"; 
 }
 
+void manage_directional_light(Shader& shader){
+	shader.use();
+	if(includeDirectionalLight){
+		shader.setVec3("directionalLight.direction", directionalLight);
+		shader.setVec3("directionalLight.ambient", glm::vec3(0.1));
+		shader.setVec3("directionalLight.diffuse", glm::vec3(0.4));
+		shader.setVec3("directionalLight.specular", glm::vec3(0.2f));
+	}else{
+		shader.setVec3("directionalLight.ambient", vec0);
+		shader.setVec3("directionalLight.diffuse", vec0);
+		shader.setVec3("directionalLight.specular", vec0);
+	}
+}
 
+void manage_point_lights(Shader& shader){
+	shader.use();
+	if(includePointLight){
+		shader.setInt("nrActivePointLights", nrActivePointLights);
+		for(int i = 0; i < nrActivePointLights; i++){
+			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
+			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.1f));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(0.7));
+
+			shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
+			shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.07f);
+			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.0173275);		
+			}
+		}
+	else{
+		shader.setInt("nrActivePointLights", 0);
+	}
+}
+
+void manage_spot_light(Shader& shader){
+	shader.use();
+	if(includeSpotLight){
+		shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
+		shader.setVec3("spotLight.diffuse", glm::vec3(0.6f));
+		shader.setVec3("spotLight.specular", glm::vec3(1.0f));
+		
+		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(14.5f)));
+		
+		shader.setFloat("spotLight.constant", 1.0f);
+		shader.setFloat("spotLight.linear", 0.09f);
+		shader.setFloat("spotLight.quadratic", 0.032f);
+	}else{
+		shader.setVec3("spotLight.ambient", vec0);
+		shader.setVec3("spotLight.diffuse", vec0);
+		shader.setVec3("spotLight.specular", vec0);
+		
+		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(0.0f)));
+		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(0.0f)));
+		
+		//we need to set any of these so we dont divide by 0 in the shader if these are defaulted to 0;
+		shader.setFloat("spotLight.constant", -1.0f);
+		//shader.setFloat("spotLight.linear", -1.0f);
+		//shader.setFloat("spotLight.quadratic", -1.0f);
+	}
+}
 void mouse_callback(GLFWwindow* window, double xPos, double yPos){
 	if(firstMove){
 		xPos = lastX;

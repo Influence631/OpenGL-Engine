@@ -49,7 +49,6 @@ struct SpotLight{
 };
 
 uniform bool useDirectional;
-uniform bool usePoint;
 uniform bool useSpot;
 
 uniform sampler2D face;
@@ -75,16 +74,13 @@ void main(){
 	vec3 specColor = texture(material.specular, uv).rgb;
 	
 	vec3 result = vec3(0.0f);
-	if(useDirectional)
-		result += calculateDirectionalLight(directionalLight, diffuseColor, specColor, norm, viewDir);
-	
-	if(usePoint){
-		for(int i = 0; i < nrActivePointLights; i++){
+	result += calculateDirectionalLight(directionalLight, diffuseColor, specColor, norm, viewDir);
+
+	for(int i = 0; i < nrActivePointLights; i++){
 			result += calculatePointLight(pointLights[i], diffuseColor, specColor, norm, viewDir);
-		}
 	}
-	if(useSpot)
-		result += calculateSpotLight(spotLight, diffuseColor, specColor, norm, viewDir);
+	
+	result += calculateSpotLight(spotLight, diffuseColor, specColor, norm, viewDir);
 
 	FragColor = vec4(result, 1.0f);
 }
@@ -139,8 +135,6 @@ vec3 calculateSpotLight(SpotLight light, vec3 diffColor, vec3 specColor, vec3 no
 		diffuse *= intensity;
 		specular *= intensity;
 			
-		//still works at this point
-		return(ambient + diffuse + specular);
 		float dist = length(light.position - FragPos);
 		float attenuation = 1.0f / (light.constant + dist * light.linear + dist * dist * light.quadratic); 
 		

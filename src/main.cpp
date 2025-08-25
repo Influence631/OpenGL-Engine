@@ -280,21 +280,45 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 }
 
 void processInput(GLFWwindow* window, Shader& shader){
+	static bool fKeyWasPressed;
+	static bool gKeyWasPressed;
+	static bool hKeyWasPressed;
+
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, true);
 	}
-	if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
-		includeSpotLight = !includeSpotLight;
-		manage_spot_light(shader);
-	}
-	if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
-		includePointLight = !includePointLight;
-		manage_point_lights(shader);
 
+	if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
+		if(!fKeyWasPressed){
+			includeSpotLight = !includeSpotLight;
+			manage_spot_light(shader);
+		}	
+		fKeyWasPressed = true;
 	}
+	else{
+		fKeyWasPressed = false;
+	}
+
+	if(glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS){
+		if(!gKeyWasPressed){
+			includePointLight = !includePointLight;
+			manage_point_lights(shader);
+		}
+		gKeyWasPressed = true;
+	}
+	else{
+		gKeyWasPressed = false;
+	}
+
 	if(glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS){
-		includeDirectionalLight = !includeDirectionalLight;
-		manage_directional_light(shader);
+		if(!hKeyWasPressed){
+			includeDirectionalLight = !includeDirectionalLight;
+			manage_directional_light(shader);
+		}
+		hKeyWasPressed = true;
+	}
+	else{
+		hKeyWasPressed = false;
 	}
 	//camera movement
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)

@@ -4,6 +4,7 @@ project(engine)
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
+find_package(assimp REQUIRED)
 
 #add glad
 add_library(glad STATIC src/glad.c)
@@ -25,8 +26,12 @@ target_include_directories(camera PUBLIC headers)
 add_library(stb_image STATIC src/stb_image.cpp)
 target_include_directories(stb_image PUBLIC headers)
 
+#mesh class
+add_library(meshes STATIC src/Mesh.cpp)
+target_include_directories(meshes PUBLIC headers)
+
 #main program
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE headers)
-target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw OpenGL::GL glm::glm stb_image buffers shaders camera)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw OpenGL::GL glm::glm  assimp stb_image buffers shaders camera meshes)

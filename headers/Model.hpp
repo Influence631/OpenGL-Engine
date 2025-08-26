@@ -6,15 +6,20 @@
 #include <vector>
 #include <Shader.hpp>
 
+using std::string;
+using std::vector;
+
 class Model{
 	public:
 	Model(const char* path);
 	void Draw(Shader& shader);
 
-	private:
-	vector<Mesh> meshes;
-	std::string directory;
-
+	public:
+	vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+  vector<Mesh>    meshes;
+  string directory;
+  bool gammaCorrection;
+	
 	private:
 	void loadModel(const char* path);
 	void processNode(aiNode* node, const aiScene* scene);

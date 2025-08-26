@@ -10,6 +10,8 @@
 #include <Camera.hpp>
 #include <glm_print.hpp>
 #include <texture.hpp>
+#include <Mesh.hpp>
+#include <Model.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);
@@ -156,6 +158,9 @@ int main(int argc, char** argv){
 	unsigned int box_diffuse_map = load_texture("../assets/diffuse_map.png");
 	unsigned int box_specular_map = load_texture("../assets/specular_map.png");
 	unsigned int face_texture = load_texture("../assets/awesomeface.png", true);
+	
+	//stbi_set_flip_vertically_on_load(true);
+	Model ourModel("../assets/backpack/backpack.obj");
 
 	Shader shader = Shader("../src/lightedObject.vert", "../src/lightedObject.frag");
 	shader.use();
@@ -210,6 +215,8 @@ int main(int argc, char** argv){
 		//frag
 		shader.setVec3("viewPos", camera.Position);
 		
+		ourModel.Draw(shader);
+
 		if(includeSpotLight){
 			shader.setVec3("spotLight.position", camera.Position);
 			shader.setVec3("spotLight.direction", camera.Front);

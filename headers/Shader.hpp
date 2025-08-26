@@ -12,11 +12,12 @@ class Shader{
 	void use();
 
 	void setFloat(const char* name, float value);
-	void setFloat(const std::string name, float value);
+	void setFloat(const string& name, float value);
 	void setInt(const char* name, int value);
+	void setInt(const string&  name, int value);
 	void setMat4(const char* name, const glm::mat4& matrix);
 	void setVec3(const char* name, const glm::vec3& vec, int count = 1);
-	void setVec3(const std::string name, const glm::vec3& vec, int count = 1);
+	void setVec3(const string& name, const glm::vec3& vec, int count = 1);
 	void setVec4(const char* name, const glm::vec4& vec, int count = 1);
 
 	public:

@@ -27,11 +27,13 @@ add_library(stb_image STATIC src/stb_image.cpp)
 target_include_directories(stb_image PUBLIC headers)
 
 #mesh class
-add_library(meshes STATIC src/Mesh.cpp)
-target_include_directories(meshes PUBLIC headers)
+add_library(mesh STATIC src/Mesh.cpp)
+target_include_directories(mesh PUBLIC headers)
 
+add_library(model STATIC src/Model.cpp)
+target_include_directories(model PUBLIC headers)
 #main program
 add_executable(${PROJECT_NAME} src/main.cpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE headers)
-target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw OpenGL::GL glm::glm  assimp stb_image buffers shaders camera meshes)
+target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw OpenGL::GL glm::glm  assimp stb_image buffers shaders camera mesh model)

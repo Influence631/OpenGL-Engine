@@ -63,8 +63,8 @@ void Camera::ProcessMouse(float xOffset, float yOffset){
 void Camera::ProcessScroll(float yOffset){
 	Fov -= (yOffset);
 
-	if(Fov > 120.0f){
-		Fov = 120.0f;
+	if(Fov > 90.0f){
+		Fov = 90.0f;
 	}
 	else if(Fov < 1.0f){
 		Fov = 1.0f;

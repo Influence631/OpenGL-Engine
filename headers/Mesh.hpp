@@ -29,5 +29,5 @@ class Mesh{
 	unsigned int VBO, EBO, VAO;
 
 	private:
-	void setUpMesh();
+	void setupMesh();
 };

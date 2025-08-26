@@ -30,6 +30,7 @@ bool includePointLight = false;
 bool includeSpotLight = true;
 
 const glm::vec3 vec0 = glm::vec3(0.0f);
+
 float nrActivePointLights = 4;
 const glm::vec3 pointLightPositions[] ={
 	glm::vec3(3.2f, 7.0f, 4.3f),
@@ -40,9 +41,6 @@ const glm::vec3 pointLightPositions[] ={
 
 glm::vec3 directionalLight = glm::vec3(0.2f, -1.3f, -0.3f);
 
-float lastX = screen_width / 2;
-float lastY = screen_height / 2;
-bool firstMove = true;
 
 float deltaTime = 0.0f;
 float lastTime = 0.0f;
@@ -98,11 +96,6 @@ const glm::vec3 cubePositions[] = {
 	glm::vec3(-10.0f, 10.5f, -10.0f),
 };
 
-//const unsigned int indices[] = {
-	//															0, 1, 2,
-		//														2, 1, 3
-			//												 };
-
 int main(int argc, char** argv){
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -133,30 +126,19 @@ int main(int argc, char** argv){
 	//the normal cube
 	unsigned int vao = createVAO();
 	unsigned int vbo = createVBO();
-	//unsigned int ebo = createEBO();
-
-	//std::cout << "VAO " << vao << "VBO - " <<  vbo <<  "EBO -  " << ebo << "\n";	
-
 	bindVAO(vao);
 	bindVBO(vbo);
-	//bindEBO(ebo);
-	
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);  
 	sendDataVBO(sizeof(vertices), vertices);
-	//sendDataEBO(sizeof(indices), indices);
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	
 	//the light source cube
 	unsigned int lightCubeVAO = createVAO();
@@ -170,7 +152,7 @@ int main(int argc, char** argv){
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	//make a function for loading textures
+	//load the textures
 	unsigned int box_diffuse_map = load_texture("../assets/diffuse_map.png");
 	unsigned int box_specular_map = load_texture("../assets/specular_map.png");
 	unsigned int face_texture = load_texture("../assets/awesomeface.png", true);
@@ -179,10 +161,9 @@ int main(int argc, char** argv){
 	shader.use();
 
 	//set the textures & material maps
-	shader.setInt("material.diffuse", 0);
-	shader.setInt("material.specular", 1);
+	shader.setInt("material.texture_diffuse1", 0);
+	shader.setInt("material.texture_specular1", 1);
 	shader.setInt("face", 2);
-	
 	//material
 	shader.setFloat("material.shininess", 32);
 	
@@ -373,16 +354,16 @@ void manage_point_lights(Shader& shader){
 void manage_spot_light(Shader& shader){
 	shader.use();
 	if(includeSpotLight){
-		shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
-		shader.setVec3("spotLight.diffuse", glm::vec3(0.6f));
+		shader.setVec3("spotLight.ambient", glm::vec3(0.3f));
+		shader.setVec3("spotLight.diffuse", glm::vec3(0.8f));
 		shader.setVec3("spotLight.specular", glm::vec3(1.0f));
 		
 		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(14.5f)));
+		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
 		
 		shader.setFloat("spotLight.constant", 1.0f);
-		shader.setFloat("spotLight.linear", 0.09f);
-		shader.setFloat("spotLight.quadratic", 0.032f);
+		shader.setFloat("spotLight.linear", 0.0045f);
+		shader.setFloat("spotLight.quadratic", 0.0019f);
 	}else{
 		shader.setVec3("spotLight.ambient", vec0);
 		shader.setVec3("spotLight.diffuse", vec0);
@@ -398,11 +379,16 @@ void manage_spot_light(Shader& shader){
 	}
 }
 void mouse_callback(GLFWwindow* window, double xPos, double yPos){
+	static float lastX = screen_width / 2;
+	static float lastY = screen_height / 2;
+	static bool firstMove = true;
+	
 	if(firstMove){
 		xPos = lastX;
 		yPos = lastY;
 		firstMove = false;
 	}
+
 	float xOffset = static_cast<float>(xPos - lastX);
 	float yOffset = static_cast<float>(lastY - yPos);
 	lastX = xPos;

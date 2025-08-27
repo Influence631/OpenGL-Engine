@@ -215,7 +215,6 @@ int main(int argc, char** argv){
 		//frag
 		shader.setVec3("viewPos", camera.Position);
 		
-		ourModel.Draw(shader);
 
 		if(includeSpotLight){
 			shader.setVec3("spotLight.position", camera.Position);
@@ -224,13 +223,18 @@ int main(int argc, char** argv){
 	
 		glm::mat4 model;
 		bindVAO(vao);
-		for(int i=0; i < 10; i++){
+		for(int i=0; i < 0; i++){
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(i));
 			model = glm::rotate(model, currentTime * i / slow, glm::vec3(0.3f, 0.5f, 0.4f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
+		model = glm::mat4(1.0f);
+		model = glm::scale(model, glm::vec3(1.0f));
+		shader.setMat4("model", model);
+		ourModel.Draw(shader);
 		//
 		//draw the light source
 		//

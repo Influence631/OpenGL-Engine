@@ -1,7 +1,7 @@
 #version 460 core
 out vec4 FragColor;
 
-in vec2 uv;
+in vec2 UV;
 in vec3 Normal;
 in vec3 FragPos;
 
@@ -70,8 +70,8 @@ vec3 calculateSpotLight(SpotLight light, vec3 diffColor, vec3 specColor, vec3 no
 void main(){
 	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 diffuseColor = texture(material.texture_diffuse1, uv).rgb;
-	vec3 specColor = texture(material.texture_specular1, uv).rgb;
+	vec3 diffuseColor = texture(material.texture_diffuse1, UV).rgb;
+	vec3 specColor = texture(material.texture_specular1, UV).rgb;
 	
 	vec3 result = vec3(0.0f);
 	result += calculateDirectionalLight(directionalLight, diffuseColor, specColor, norm, viewDir);

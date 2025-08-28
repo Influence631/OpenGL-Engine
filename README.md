@@ -31,3 +31,4 @@ Spot Light:
 <img width="1418" height="886" alt="image" src="https://github.com/user-attachments/assets/2c555d40-9345-45b4-addf-ce76f29f2433" />
 
 
+Model loading:

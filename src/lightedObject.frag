@@ -8,7 +8,7 @@ in vec3 FragPos;
 struct Material{
 	sampler2D texture_diffuse1;
 	sampler2D texture_specular1;
-
+	//sampler2D texture_normal1;
 	float shininess;
 };
 
@@ -69,6 +69,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 diffColor, vec3 specColor, vec3 no
 
 void main(){
 	vec3 norm = normalize(Normal);
+	//vec3 norm = normalize(texture(material.texture_normal1, UV).xyz);
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 diffuseColor = texture(material.texture_diffuse1, UV).rgb;
 	vec3 specColor = texture(material.texture_specular1, UV).rgb;

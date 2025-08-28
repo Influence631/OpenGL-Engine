@@ -10,7 +10,6 @@
 #include <Camera.hpp>
 #include <glm_print.hpp>
 #include <texture.hpp>
-#include <Mesh.hpp>
 #include <Model.hpp>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -154,7 +153,7 @@ int main(int argc, char** argv){
 	unsigned int face_texture = load_texture("../assets/awesomeface.png", true);
 	
 	stbi_set_flip_vertically_on_load(true);
-	//Model ourModel("../assets/backpack/backpack.obj");
+	Model ourModel("../assets/backpack/backpack.obj");
 	Model statue("../assets/statue_of_liberty/liberty.obj");
 
 	Shader shader = Shader("../src/lightedObject.vert", "../src/lightedObject.frag");
@@ -179,7 +178,7 @@ int main(int argc, char** argv){
 	while(!glfwWindowShouldClose(window)){
 		processInput(window, shader);
 		
-		glClearColor(0.54f, 0.89f, 0.63f, 1.0f);
+		glClearColor(0.07568f, 0.614f, 0.3758f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//bind texture to the correct texture units so that the vshader sampler the correct textures
@@ -208,7 +207,7 @@ int main(int argc, char** argv){
 		//need to make the 4 lights to go in a single circle, not separate ones
 		glm::vec3 offset = vec0;
 		
-		float radius = 2.0f;
+		float radius = 0.0f;
 		float speed = 1.0f;
 		
 		if(movingLights){
@@ -228,19 +227,19 @@ int main(int argc, char** argv){
 		}
 		
 		glm::mat4 model;
-		bindVAO(vao);
+		// bindVAO(vao);
 		
-		shader.setInt("material.texture_diffuse1", 0);
-		shader.setInt("material.texture_specular1", 1);
-		shader.setInt("face", 2);
-		//draw the boxes diagonally
-		for(int i=0; i < 3; i++){
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(i));
-			model = glm::rotate(model, currentTime * i * speed, glm::vec3(0.3f, 0.5f, 0.4f));
-			shader.setMat4("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		// shader.setInt("material.texture_diffuse1", 0);
+		// shader.setInt("material.texture_specular1", 1);
+		// shader.setInt("face", 2);
+		// //draw the boxes diagonally
+		// for(int i=0; i < 3; i++){
+		// 	model = glm::mat4(1.0f);
+		// 	model = glm::translate(model, glm::vec3(i));
+		// 	model = glm::rotate(model, currentTime * i * speed, glm::vec3(0.3f, 0.5f, 0.4f));
+		// 	shader.setMat4("model", model);
+		// 	glDrawArrays(GL_TRIANGLES, 0, 36);
+		// }
 		
 		//set up model matrix for statue
 		model = glm::mat4(1.0f);
@@ -248,8 +247,11 @@ int main(int argc, char** argv){
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		shader.setMat4("model", model);
 		
+		//statue.Draw(shader);
 		statue.Draw(shader);
-		//ourModel.Draw(shader);
+		// model = glm::translate(model, glm::vec3(3.0, 0.0f, 2.0f));
+		// shader.setMat4("model", model);
+		// ourModel.Draw(shader);
 		//
 		//draw the light source
 		//
@@ -348,8 +350,8 @@ void manage_directional_light(Shader& shader){
 	shader.use();
 	if(includeDirectionalLight){
 		shader.setVec3("directionalLight.direction", directionalLight);
-		shader.setVec3("directionalLight.ambient", glm::vec3(0.1));
-		shader.setVec3("directionalLight.diffuse", glm::vec3(0.4));
+		shader.setVec3("directionalLight.ambient", glm::vec3(0.3));
+		shader.setVec3("directionalLight.diffuse", glm::vec3(0.6));
 		shader.setVec3("directionalLight.specular", glm::vec3(1.0f));
 	}else{
 		shader.setVec3("directionalLight.ambient", vec0);
@@ -364,7 +366,7 @@ void manage_point_lights(Shader& shader){
 		shader.setInt("nrActivePointLights", nrActivePointLights);
 		for(int i = 0; i < nrActivePointLights; i++){
 			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i] );
-			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.2f));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.3f));
 			shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(0.7f));
 			shader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f));
 

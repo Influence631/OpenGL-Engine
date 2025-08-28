@@ -1,0 +1,8 @@
+Model Information:
+* title:	Statue Of Liberty
+* source:	https://sketchfab.com/3d-models/statue-of-liberty-6cb75e326e784acb8e40d192281a93fe
+* author:	vikramart2001 (https://sketchfab.com/vikramart2001)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

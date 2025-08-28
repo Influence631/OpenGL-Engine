@@ -27,22 +27,23 @@ const unsigned int screen_height = 920;
 
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
-bool includeDirectionalLight = true;
-bool includePointLight = false;
-bool includeSpotLight = true;
+bool includeDirectionalLight = false;
+bool includePointLight = true;
+bool includeSpotLight = false;
+
+bool movingLights = true;
 
 const glm::vec3 vec0 = glm::vec3(0.0f);
 
 float nrActivePointLights = 4;
 const glm::vec3 pointLightPositions[] ={
-	glm::vec3(3.2f, 7.0f, 4.3f),
-	glm::vec3(2.4f, -2.0f, 7.0f),
-	glm::vec3(7.0f, 5.2f, -2.0f),
-	glm::vec3(12.0f, 9.0f, 10.0f)
+	glm::vec3(3.f, 0.0f, 3.0f),
+	glm::vec3(-3.f, 0.0f, 3.0f),
+	glm::vec3(3.0f, 0.0f, -3.0f),
+	glm::vec3(-3.0f,0.0f, -3.0f)
 };
 
 glm::vec3 directionalLight = glm::vec3(0.2f, -1.3f, -0.3f);
-
 
 float deltaTime = 0.0f;
 float lastTime = 0.0f;
@@ -91,13 +92,6 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f
 };
 
-const glm::vec3 cubePositions[] = {
-	glm::vec3(0.0f, 0.5f, 0.0f),
-	glm::vec3(2.0f, 0.5f, -2.0f),
-	glm::vec3(-1.0f, -2.5f, 1.0f),
-	glm::vec3(-10.0f, 10.5f, -10.0f),
-};
-
 int main(int argc, char** argv){
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -134,9 +128,9 @@ int main(int argc, char** argv){
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
@@ -159,8 +153,9 @@ int main(int argc, char** argv){
 	unsigned int box_specular_map = load_texture("../assets/specular_map.png");
 	unsigned int face_texture = load_texture("../assets/awesomeface.png", true);
 	
-	//stbi_set_flip_vertically_on_load(true);
-	Model ourModel("../assets/backpack/backpack.obj");
+	stbi_set_flip_vertically_on_load(true);
+	//Model ourModel("../assets/backpack/backpack.obj");
+	Model statue("../assets/statue_of_liberty/liberty.obj");
 
 	Shader shader = Shader("../src/lightedObject.vert", "../src/lightedObject.frag");
 	shader.use();
@@ -184,7 +179,7 @@ int main(int argc, char** argv){
 	while(!glfwWindowShouldClose(window)){
 		processInput(window, shader);
 		
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.54f, 0.89f, 0.63f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		//bind texture to the correct texture units so that the vshader sampler the correct textures
@@ -204,37 +199,57 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(screen_width/screen_height), 0.1f, 100.0f);
 
-		//float radius = 0.0f;
-		float slow = 10.0f;
-		//glm::vec3 lightPosOffset = glm::vec3(cos(currentTime/slow),sin(currentTime/slow)*cos(currentTime/slow),sin(currentTime/slow)) * radius;	
-		
-		shader.use();
+		shader.use();		
 		//vert
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
 		//frag
 		shader.setVec3("viewPos", camera.Position);
+		//need to make the 4 lights to go in a single circle, not separate ones
+		glm::vec3 offset = vec0;
 		
+		float radius = 2.0f;
+		float speed = 1.0f;
+		
+		if(movingLights){
+			offset.x = glm::cos(currentTime * speed) * radius; 
+			offset.z = glm::sin(currentTime * speed) * radius;
+		}
 
+		if(includePointLight){
+			for(int i = 0; i < nrActivePointLights; i++){
+					shader.setVec3("pointLights[" + std::to_string(i) + "].position", offset + pointLightPositions[i]);
+			}	
+		}
+		
 		if(includeSpotLight){
 			shader.setVec3("spotLight.position", camera.Position);
 			shader.setVec3("spotLight.direction", camera.Front);
 		}
-	
+		
 		glm::mat4 model;
 		bindVAO(vao);
-		for(int i=0; i < 0; i++){
+		
+		shader.setInt("material.texture_diffuse1", 0);
+		shader.setInt("material.texture_specular1", 1);
+		shader.setInt("face", 2);
+		//draw the boxes diagonally
+		for(int i=0; i < 3; i++){
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, glm::vec3(i));
-			model = glm::rotate(model, currentTime * i / slow, glm::vec3(0.3f, 0.5f, 0.4f));
+			model = glm::rotate(model, currentTime * i * speed, glm::vec3(0.3f, 0.5f, 0.4f));
 			shader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
+		
+		//set up model matrix for statue
 		model = glm::mat4(1.0f);
-		model = glm::scale(model, glm::vec3(1.0f));
+		model = glm::scale(model, glm::vec3(2.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		shader.setMat4("model", model);
-		ourModel.Draw(shader);
+		
+		statue.Draw(shader);
+		//ourModel.Draw(shader);
 		//
 		//draw the light source
 		//
@@ -246,7 +261,8 @@ int main(int argc, char** argv){
 			bindVAO(lightCubeVAO);
 			for(int i = 0; i < 4; i++){
 				model = glm::mat4(1.0f);
-				model = glm::translate(model, pointLightPositions[i]);
+				//draw lights corretly when moved
+				model = glm::translate(model, pointLightPositions[i] + offset);
 				model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 				lightSourceShader.setMat4("model", model);
 			
@@ -334,7 +350,7 @@ void manage_directional_light(Shader& shader){
 		shader.setVec3("directionalLight.direction", directionalLight);
 		shader.setVec3("directionalLight.ambient", glm::vec3(0.1));
 		shader.setVec3("directionalLight.diffuse", glm::vec3(0.4));
-		shader.setVec3("directionalLight.specular", glm::vec3(0.2f));
+		shader.setVec3("directionalLight.specular", glm::vec3(1.0f));
 	}else{
 		shader.setVec3("directionalLight.ambient", vec0);
 		shader.setVec3("directionalLight.diffuse", vec0);
@@ -347,14 +363,14 @@ void manage_point_lights(Shader& shader){
 	if(includePointLight){
 		shader.setInt("nrActivePointLights", nrActivePointLights);
 		for(int i = 0; i < nrActivePointLights; i++){
-			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i]);
-			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.1f));
-			shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(0.5f));
-			shader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(0.7));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].position", pointLightPositions[i] );
+			shader.setVec3("pointLights[" + std::to_string(i) + "].ambient", glm::vec3(0.2f));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", glm::vec3(0.7f));
+			shader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f));
 
 			shader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.0f);
-			shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.07f);
-			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.0173275);		
+			shader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.0037f);
+			shader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.00173275);		
 			}
 		}
 	else{
@@ -365,16 +381,16 @@ void manage_point_lights(Shader& shader){
 void manage_spot_light(Shader& shader){
 	shader.use();
 	if(includeSpotLight){
-		shader.setVec3("spotLight.ambient", glm::vec3(0.3f));
-		shader.setVec3("spotLight.diffuse", glm::vec3(0.8f));
+		shader.setVec3("spotLight.ambient", glm::vec3(0.1f));
+		shader.setVec3("spotLight.diffuse", glm::vec3(0.5f));
 		shader.setVec3("spotLight.specular", glm::vec3(1.0f));
 		
 		shader.setFloat("spotLight.innerCutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(24.5f)));
 		
 		shader.setFloat("spotLight.constant", 1.0f);
-		shader.setFloat("spotLight.linear", 0.0045f);
-		shader.setFloat("spotLight.quadratic", 0.0019f);
+		shader.setFloat("spotLight.linear", 0.0043f);
+		shader.setFloat("spotLight.quadratic", 0.0002f);
 	}else{
 		shader.setVec3("spotLight.ambient", vec0);
 		shader.setVec3("spotLight.diffuse", vec0);

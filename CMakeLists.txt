@@ -31,14 +31,14 @@ add_library(mesh STATIC src/Mesh.cpp)
 target_include_directories(mesh PUBLIC headers)
 
 #model
-add_library(model STATIC src/Model.cpp)
-target_include_directories(model PUBLIC headers ${ASSIMP_INCLUDE_DIRS})
-target_link_libraries(model PUBLIC mesh assimp)
-
 #add_library(model STATIC src/Model.cpp)
-#target_include_directories(model PUBLIC headers)
-#target_link_libraries(model PUBLIC mesh assimp
-##target_include_directories(model PUBLIC headers ${ASSIMP_INCLUDE_DIRS})
+#target_include_directories(model PUBLIC headers ${ASSIMP_INCLUDE_DIRS})
+#target_link_libraries(model PUBLIC mesh assimp)
+
+add_library(model STATIC src/Model.cpp)
+target_include_directories(model PUBLIC headers)
+target_link_libraries(model PUBLIC mesh assimp)
+#target_include_directories(model PUBLIC headers ${ASSIMP_INCLUDE_DIRS})
 
 
 #main program

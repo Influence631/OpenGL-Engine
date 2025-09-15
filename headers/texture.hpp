@@ -41,3 +41,40 @@ unsigned int load_texture(const char* path, bool flip = false){
 	stbi_image_free(data);
 	return texture;
 }
+
+unsigned int load_skybox(const char* faces[], const string subdirectory = ""){
+	stbi_set_flip_vertically_on_load(false);
+
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+
+	std::string path;
+	int width, height, nrChannels;
+	for(int i = 0; i < 6; i++){
+		path = subdirectory + faces[i];
+		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+		GLenum format;
+		if(nrChannels == 1)
+			format = GL_RED;
+		else if(nrChannels == 3)
+			format = GL_RGB;
+		else if(nrChannels == 4)
+			format = GL_RGBA;
+		if(data){
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else{
+			std::cerr << "Failed to load the skybox at path : " << path << " \n"; 
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S , GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T , GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R , GL_CLAMP_TO_EDGE);
+
+	return texture;
+}

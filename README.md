@@ -35,3 +35,5 @@ Model loading + Lighting:
 <img width="1412" height="913" alt="image" src="https://github.com/user-attachments/assets/e63df4d7-ba44-4148-8a5d-e9259dceb358" />
 
 Model author:	vikramart2001 (https://sketchfab.com/vikramart2001)
+
+the skybox was downloaded from learnopengl.com

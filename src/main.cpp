@@ -30,6 +30,7 @@ bool includeDirectionalLight = false;
 bool includePointLight = true;
 bool includeSpotLight = false;
 
+bool includeSkybox = true;
 bool movingLights = true;
 bool drawBoxes = false;
 
@@ -202,6 +203,8 @@ int main(int argc, char** argv){
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
   
+	skyboxShader.use();
+	skyboxShader.setInt("skybox", 0);
   //plain
 	//
 	unsigned int plainVAO = createVAO();
@@ -248,16 +251,6 @@ int main(int argc, char** argv){
 		glm::mat4 view = camera.getViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Fov), static_cast<float>(screen_width/screen_height), 0.1f, 100.0f);
 
-
-		glDepthMask(GL_FALSE);
-		skyboxShader.use();
-		skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
-		skyboxShader.setMat4("projection", projection);
-		bindVAO(skyboxVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-		
 		
 		shader.use();		
 		//vert
@@ -339,7 +332,19 @@ int main(int argc, char** argv){
 			}
 		}
 		
-		
+		if(includeSkybox){
+			//draw the skybox
+			glDepthFunc(GL_LEQUAL);
+			skyboxShader.use();
+			skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
+			skyboxShader.setMat4("projection", projection);
+			bindVAO(skyboxVAO);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		}
+
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

@@ -7,5 +7,7 @@ uniform mat4 projection;
 
 void main(){
 	TexCoords = aPos;
-	gl_Position = projection * view * vec4(aPos, 1.0); 
+	vec4 pos = projection * view * vec4(aPos, 1.0); 
+	gl_Position = pos.xyww; //z is set to 1.0 (maximum depth so that its located  behind eveything)
+
 }

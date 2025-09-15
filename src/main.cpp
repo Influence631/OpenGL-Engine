@@ -204,7 +204,7 @@ int main(int argc, char** argv){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
   
 	skyboxShader.use();
-	skyboxShader.setInt("skybox", 0);
+	skyboxShader.setInt("skybox", 3);
   //plain
 	//
 	unsigned int plainVAO = createVAO();

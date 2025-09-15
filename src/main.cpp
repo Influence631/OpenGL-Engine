@@ -337,11 +337,14 @@ int main(int argc, char** argv){
 			glDepthFunc(GL_LEQUAL);
 			skyboxShader.use();
 			skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
+			//remove translation from the skybox so camera movement doesnt affect it
 			skyboxShader.setMat4("projection", projection);
 			bindVAO(skyboxVAO);
 			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
-
+			
+			glBindVertexArray(0);
+			glDepthFunc(GL_LESS);
 		}
 
 
@@ -350,9 +353,13 @@ int main(int argc, char** argv){
 	}
 
 	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &vao);
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteVertexArrays(1, &lightCubeVAO);
+	glDeleteVertexArrays(1, &plainVAO);
 
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &plainVBO);
+	
 	glfwTerminate();
 	return 0;
 }

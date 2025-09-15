@@ -204,7 +204,7 @@ int main(int argc, char** argv){
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
   
 	skyboxShader.use();
-	skyboxShader.setInt("skybox", 3);
+	skyboxShader.setInt("skybox", 0);
   //plain
 	//
 	unsigned int plainVAO = createVAO();
@@ -336,7 +336,6 @@ int main(int argc, char** argv){
 			//draw the skybox
 			glDepthFunc(GL_LEQUAL);
 			skyboxShader.use();
-			skyboxShader.setInt("skybox", 0);
 			skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
 			//remove translation from the skybox so camera movement doesnt affect it
 			skyboxShader.setMat4("projection", projection);

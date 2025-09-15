@@ -30,6 +30,11 @@ Spot Light:
 
 <img width="1418" height="886" alt="image" src="https://github.com/user-attachments/assets/2c555d40-9345-45b4-addf-ce76f29f2433" />
 
+Skybox:
+<img width="1416" height="923" alt="Skybox" src="https://github.com/user-attachments/assets/55d269d8-b5e9-4c32-9deb-c5f571b53c31" />
+
+<img width="1420" height="916" alt="Skybox+Flashlight" src="https://github.com/user-attachments/assets/d4a9e54f-42aa-4713-8926-d8898fb17e27" />
+
 
 Model loading + Lighting:
 <img width="1412" height="913" alt="image" src="https://github.com/user-attachments/assets/e63df4d7-ba44-4148-8a5d-e9259dceb358" />

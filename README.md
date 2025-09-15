@@ -41,6 +41,7 @@ Skybox:
 
 <img width="1420" height="916" alt="Skybox+Flashlight" src="https://github.com/user-attachments/assets/d4a9e54f-42aa-4713-8926-d8898fb17e27" />
 
+<img width="1421" height="921" alt="Statue" src="https://github.com/user-attachments/assets/a8034a71-d841-4759-a978-39b00afc8c43" />
 
 
 Model author:	vikramart2001 (https://sketchfab.com/vikramart2001)

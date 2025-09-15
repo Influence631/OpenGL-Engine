@@ -236,9 +236,6 @@ int main(int argc, char** argv){
 		glBindTexture(GL_TEXTURE_2D, box_specular_map);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, face_texture);
-		//skybox
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 
 		
 
@@ -333,9 +330,13 @@ int main(int argc, char** argv){
 		}
 		
 		if(includeSkybox){
+			//skybox
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 			//draw the skybox
 			glDepthFunc(GL_LEQUAL);
 			skyboxShader.use();
+			skyboxShader.setInt("skybox", 3);
 			skyboxShader.setMat4("view", glm::mat4(glm::mat3(view)));
 			//remove translation from the skybox so camera movement doesnt affect it
 			skyboxShader.setMat4("projection", projection);

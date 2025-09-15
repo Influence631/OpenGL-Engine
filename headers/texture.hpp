@@ -47,6 +47,7 @@ unsigned int load_skybox(const char* faces[], const string subdirectory = ""){
 
 	unsigned int texture;
 	glGenTextures(1, &texture);
+	glActiveTexture(1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 
 	std::string path;

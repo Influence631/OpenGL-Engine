@@ -1,8 +1,8 @@
-WIP. 
-This is a very basic game engine being built with C++ and OpenGL.
+a little rendering engine being built using C++ and OpenGL. WIP.
 
+Note: if you run this via WSL you might get weird artifactS as WSL is a subsystem and doesn't have direct access to a GPU.
 
-To run on linux or WSL:
+To run on linux :
 1.Install glfw3, OpenGL and glm system wide (will clarify on this later)
 2. cd into build folder  
 3. cmake ..  
